@@ -12,44 +12,55 @@ $response = array();
 // database configuration path
 include "db/config.php";
 
-if(isset($_POST['distance'])) {
+if(isset($_POST['distance']) && isset($_POST['latitude'])
+    && isset($_POST['longitude'])) {
 
     // Pass incoming data into variables
     $distance = mysqli_real_escape_string($link, $_POST['distance']);
+    $latitude = mysqli_real_escape_string($link, $_POST['latitude']);
+    $longitude = mysqli_real_escape_string($link, $_POST['longitude']);
 
-    // set the range at which the query searches for a route
-    $lower = (float)$distance-3;
-    $higher = (float)$distance+3;
+    $earthRadius = 6371;
 
-    // search for routes between the range
-    $query = mysqli_query($link, "SELECT * FROM routes WHERE distance BETWEEN '$lower' AND '$higher'
-    ORDER BY distance ASC LIMIT 10");
+    // http://gis.stackexchange.com/a/31629
+    $location = mysqli_query($link, "SELECT
+          id, latitude, longitude (
+          '$earthRadius' * acos (
+          cos (radians('$latitude'))
+          * cos(radians(latitude))
+          * cos(radians(longitude)
+          - radians('$longitude'))
+          + sin(radians('$longitude'))
+          * sin(radians(latitude))
+          )
+        ) as distance
+        FROM wild_atlantic_way
+        having distance < '$distance'");
 
     // Routes available
-    if(mysqli_num_rows($query)) {
-        $response["success"] = 1;
-        $response["message"] = "Routes Available";
+    if(mysqli_num_rows($location)) {
+        $row = mysqli_fetch_array($location);
+        $route_length = 0;
 
-        // create an array to store routes
-        $response["routes"] = array();
-        while($row = mysqli_fetch_array($query)) {
-            $route = array();
-            $route["route_id"] = $row["route_id"];
-            $route["user_id"] = $row["user_id"];
-            $route["grade"] = $row["grade"];
-            $route["terrain"] = $row["terrain"];
-            $route["distance"] = $row["distance"];
-            $route["date_created"] = $row["date_created"];
+        $route = array();
 
-            // add the route to array
-            array_push($response["routes"], $route);
+        for($id = $row["id"]; $route_length < $distance; $id++) {
+            $latitude = $row["latitude"];
+            $longitude = $row["longitude"];
+            $route["id"] = $id;
+            $route["latitude"] = $row["latitude"];
+            $route["longitude"] = $row["longitude"];
+
+            array_push($response, $route);
+
+            $q = mysqli_query($link, "SELECT *
+                                      FROM wild_atlantic_way
+                                      WHERE id = '$id'");
         }
-        echo json_encode($response);
-    } else {
-        $response["success"] = 0;
-        $response["message"] = "No Routes available";
+
         echo json_encode($response);
     }
+
 } else {
     $response["success"] = -1;
     $response["message"] = "Missing field";
