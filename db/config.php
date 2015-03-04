@@ -9,13 +9,11 @@
 /**
  * Database config variables
  */
-$link = mysqli_connect("localhost", "root", "");
-mysqli_select_db($link, "apex.db");
+$link = mysqli_connect("localhost", "root", "", "apex.db");
+
 
 if(!$link) {
-    $error = "Could not connect to database";
-    echo $error;
-    exit();
+    die("Connection failed: " . mysqli_connect_error());
 }
 
 if(!mysqli_select_db($link, 'apex.db')) {

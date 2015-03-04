@@ -12,34 +12,27 @@ $response = array();
 // database configuration path
 include "db/config.php";
 
-$latitude = 54.0810356;
-$longitude = -7.277504712;
-$latFrom = deg2rad($latitude);
-$lonFrom = deg2rad($longitude);
+$lat = 51.760587483;
+$long = -8.500319597;
+$distance = 5;
 
 
-$distance = 0;
+$length = 0;
 $earthRadius = 6371000;
 
-$sql = mysqli_query($link, "SELECT id, (
-          6371 * acos (
-          cos (radians('$latitude'))
-          * cos(radians(latitude))
-          * cos(radians(longitude) - radians('$longitude'))
-          + sin(radians('$longitude'))
-          * sin(radians(latitude))
-          )
-        ) as distance
-        FROM wild_atlantic_way
-        having distance < 100");
+$query = mysqli_query($link, "SELECT id, latitude, longitude,
+                ( '$earthRadius' * acos(cos(radians('$lat'))
+                * cos(radians(latitude)) * cos(radians(longitude)
+                - radians('$long')) + sin(radians('$lat'))
+                * sin(radians(latitude)))) AS distance
+                FROM wild_atlantic_way
+                ORDER BY distance LIMIT 1;");
 
-if($sql) {
-    if(mysqli_num_rows($sql) > 0) {
-        echo "jj";
-    } else {
-        echo "hmm";
-    }
+if(mysqli_num_rows($query)) {
+    $row = mysqli_fetch_array($query);
+    echo $row["id"];
 }
+
 
 
 /*
