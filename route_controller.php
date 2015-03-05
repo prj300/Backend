@@ -53,6 +53,7 @@ if(isset($_POST['tag']) && $_POST['tag'] != '') {
             $route = $functions->saveLatLngs($link, $route_id, $latitudes, $longitudes);
             if($route) {
                 $response["success"] = true;
+                $response["route_id"] = $route_id;
                 $response["message"] = "Route saved!";
                 echo json_encode($response);
             } else {
