@@ -125,4 +125,19 @@ class user_functions {
         }
     }
 
+    /**
+     * Update query
+     */
+    public function updateUser($link, $user_id, $distance, $time, $max_speed, $average_speed)
+    {
+        $update = mysqli_query($link, "UPDATE users SET total_distance_km='$distance',
+        max_speed='$max_speed', avg_speed='$average_speed', date_updated=NOW()
+        WHERE user_id='$user_id'");
+
+        if(!mysqli_num_rows($update) > 0) {
+            return false;
+        }
+        return true;
+    }
+
 }

@@ -109,6 +109,29 @@ if(isset($_POST['tag']) && $_POST['tag'] != '') {
             $response["results"] = $results;
             echo json_encode($response);
         }
+    } else if($tag == 'update') {
+        $user_id = mysqli_real_escape_string($link, $_POST['user_id']);
+        $distance = mysqli_real_escape_string($link, $_POST['distance']);
+        $time = mysqli_real_escape_string($link, $_POST['time']);
+        $max_speed = mysqli_real_escape_string($link, $_POST['max_speed']);
+        $average_speed = mysqli_real_escape_string($link, $_POST['average_speed']);
+
+        // $update = $functions->updateUser($link, $user_id, $distance, $time, $max_speed, $average_speed);
+
+        $response["success"] = true;
+        $response["message"] = "Update successful";
+        echo json_encode($response);
+
+        /*
+        if($update) {
+            $response["success"] = true;
+            $response["message"] = "Update successful";
+            echo json_encode($response);
+        } else {
+            $response["success"] = false;
+            $response["message"] = "Update failed";
+            echo json_encode($response);
+        }*/
     }
 
 } else {

@@ -136,22 +136,24 @@ class route_functions {
         return $result_id;
     }
 
-    public function saveLatLngs($link, $route_id, $lats, $longs)
+    /**
+     * Save all lat longs into lat longs table
+     */
+    public function saveLatLngs($link, $route_id, $latitudes, $longitudes)
     {
+        // convert lats and longs back to associative array
+        $lats = json_decode($latitudes);
+        $longs = json_decode($longitudes);
 
         // Iterating through $lats and $longs arrays, inserting each value into the table
         // Along with the ID of the relative Route from the route table
-        for ($i = 0; $i < count($lats) && $i < count($longs); $i++) {
-            $lat = $lats[$i];
-            $long = $longs[$i];
+        for($i=0;$i < sizeof($lats) && $i < sizeof($longs);$i++) {
+            // SQL query string
+            $query = "INSERT INTO lats_longs (route_id, latitude, longitude)
+                      VALUES ('$route_id', '$lats[$i]', $longs[$i])";
 
-            $query = mysqli_query($link, "INSERT INTO lats_longs
-                        (route_id, latitude, longitude)
-                        VALUES ('$route_id', '$lat', '$long')");
-
-            if(mysqli_fetch_array($query)) {
-                return false;
-            }
+            // execute query
+            mysqli_query($link, $query);
         }
         return true;
     }

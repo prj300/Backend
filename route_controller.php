@@ -50,20 +50,15 @@ if(isset($_POST['tag']) && $_POST['tag'] != '') {
         $route_id = $functions->saveNewRoute($link, $user_id, $grade, $terrain, $distance);
 
         if($route_id != null) {
-            // convert json string back to array
-            $lats = json_decode($latitudes, true);
-            $longs = json_decode($longitudes, true);
-            $route = $functions->saveLatLngs($link, $route_id, $lats, $longs);
+            $route = $functions->saveLatLngs($link, $route_id, $latitudes, $longitudes);
             if($route) {
                 $response["success"] = true;
-                $response["message"] = "Route saved";
-                $response["route_id"] = $route_id;
+                $response["message"] = "Route saved!";
                 echo json_encode($response);
             } else {
                 $response["success"] = false;
-                $response["message"] = "Could not save route";
-                echo json_encode($response);
             }
+
         }
 
     }
