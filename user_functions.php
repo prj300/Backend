@@ -97,4 +97,32 @@ class user_functions {
 
     }
 
+    /**
+     * Retrieve user's results
+     */
+    public function getResults($link, $user_id)
+    {
+        // select all results from table
+        $query = mysqli_query($link, "SELECT * FROM results WHERE user_id='$user_id'");
+
+        // array to hold results
+        $result = array();
+        // if there are results available
+        if(!mysqli_num_rows($query)) {
+            return null;
+        } else {
+            // loop through rows adding them to an array
+            while($row = mysqli_fetch_array($query)) {
+                $result["result_id"] = $row["result_id"];
+                $result["route_id"] = $row["route_id"];
+                $result["distance"] = $row["distance"];
+                $result["max_speed"] = $row["max_speed"];
+                $result["avg_speed"] = $row["average_speed"];
+                $result["time"] = $row["total_time"];
+                $result["date_created"] = $row["date_created"];
+            }
+            return $result;
+        }
+    }
+
 }

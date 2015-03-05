@@ -16,6 +16,9 @@ if(isset($_POST['tag']) && $_POST['tag'] != '') {
     $functions = new user_functions();
     $response = array();
 
+    /**
+     * Call login functions
+     */
     if($tag == 'login') {
         $email = mysqli_real_escape_string($link, $_POST['email']);
         $password = mysqli_real_escape_string($link, $_POST['password']);
@@ -52,6 +55,9 @@ if(isset($_POST['tag']) && $_POST['tag'] != '') {
         }
 
 
+        /**
+         * Call register functions
+         */
     } else if($tag == 'register') {
         $email = mysqli_real_escape_string($link, $_POST['email']);
         $password = mysqli_real_escape_string($link, $_POST['password']);
@@ -85,6 +91,23 @@ if(isset($_POST['tag']) && $_POST['tag'] != '') {
                     echo json_encode($response);
                 }
             }
+        }
+        /**
+         * Call functions to download user's results
+         */
+    } else if ($tag == 'results') {
+        $user_id = mysqli_real_escape_string($link, $_POST['user_id']);
+
+        $results = $functions->getResults($link, $user_id);
+
+        if(!$results) {
+            $response["success"] = false;
+            $response["message"] = "You do not have any results yet!";
+            echo json_encode($response);
+        } else {
+            $response["success"] = true;
+            $response["results"] = $results;
+            echo json_encode($response);
         }
     }
 

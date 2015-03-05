@@ -30,8 +30,8 @@ if(isset($_POST['user_id']) && isset($_POST['grade'])
     $user_id = mysqli_real_escape_string($link, $_POST['user_id']);
     $grade = mysqli_real_escape_string($link, $_POST['grade']);
     $terrain = mysqli_real_escape_string($link, $_POST['terrain']);
-    $latitudes = mysqli_real_escape_string($link, $_POST['latitudes']);
-    $longitudes = mysqli_real_escape_string($link, $_POST['longitudes']);
+    $lats = mysqli_real_escape_string($link, $_POST['latitudes']);
+    $longs = mysqli_real_escape_string($link, $_POST['longitudes']);
     $distance = mysqli_real_escape_string($link, $_POST['distance']);
     $max_speed = mysqli_real_escape_string($link, $_POST['max_speed']);
     $avg_speed = mysqli_real_escape_string($link, $_POST['avg_speed']);

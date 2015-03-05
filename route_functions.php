@@ -13,17 +13,11 @@ class route_functions {
      */
     public function saveNewRoute($link, $user_id, $grade, $terrain, $distance)
     {
-        $route_id = 0;
         // Insert procedure on Routes Table
         $route = mysqli_query($link, "INSERT INTO routes(user_id, grade, terrain, distance, date_created)
               VALUES ('$user_id', '$grade', '$terrain', '$distance', NOW())");
 
-        if(mysqli_num_rows($route)) {
-            // ID of last inserted route
-            $route_id = mysqli_insert_id($link);
-
-        }
-        return $route_id;
+        return mysqli_insert_id($link);
     }
 
     /**
@@ -144,6 +138,7 @@ class route_functions {
 
     public function saveLatLngs($link, $route_id, $lats, $longs)
     {
+
         // Iterating through $lats and $longs arrays, inserting each value into the table
         // Along with the ID of the relative Route from the route table
         for ($i = 0; $i < count($lats) && $i < count($longs); $i++) {
@@ -154,6 +149,10 @@ class route_functions {
                         (route_id, latitude, longitude)
                         VALUES ('$route_id', '$lat', '$long')");
 
+            if(mysqli_fetch_array($query)) {
+                return false;
+            }
         }
+        return true;
     }
 }

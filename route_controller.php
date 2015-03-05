@@ -23,11 +23,12 @@ if(isset($_POST['tag']) && $_POST['tag'] != '') {
         $id = $functions->findNearestPoint($link, $latitude, $longitude);
         $route = $functions->createRoute($link, $dist, $id);
         if($route) {
-            $response["success"] = 1;
+            $response["success"] = true;
             $response["distance"] = $route["distance"];
-            echo json_encode($route);
+            $response["route"] = $route;
+            echo json_encode($response);
         } else {
-            $response["success"] = 0;
+            $response["success"] = false;
             $response["message"] = "No route";
             echo json_encode($response);
         }
@@ -46,28 +47,28 @@ if(isset($_POST['tag']) && $_POST['tag'] != '') {
         $avg_speed = mysqli_real_escape_string($link, $_POST['avg_speed']);
         $time = mysqli_real_escape_string($link, $_POST['time']);
 
-        // Decode latitude and longitude strings back to arrays
-        $lats = json_decode($latitudes, true);
-        $longs = json_decode($longitudes, true);
+        $route_id = $functions->saveNewRoute($link, $user_id, $grade, $terrain, $distance);
 
-        $route_id = $functions->saveNewRoute($link, $user_id, $grade, $terrain,
-            $latitudes, $longitudes, $distance, $max_speed, $avg_speed, $time);
-
-        if($route_id) {
-            $response["route_id"] = $route_id;
-            $functions->saveResults($link, $user_id, $route_id, $distance, $max_speed, $avg_speed, $time);
-            $functions->saveLatLngs($link, $route_id, $lats, $longs);
-            $response["success"] = 1;
-            $response["message"] = "Route created";
-            echo json_encode($response);
-        } else {
-            $response["success"] = 0;
-            $response["message"] = "Insert failed";
-            echo json_encode($response);
+        if($route_id != null) {
+            // convert json string back to array
+            $lats = json_decode($latitudes, true);
+            $longs = json_decode($longitudes, true);
+            $route = $functions->saveLatLngs($link, $route_id, $lats, $longs);
+            if($route) {
+                $response["success"] = true;
+                $response["message"] = "Route saved";
+                $response["route_id"] = $route_id;
+                echo json_encode($response);
+            } else {
+                $response["success"] = false;
+                $response["message"] = "Could not save route";
+                echo json_encode($response);
+            }
         }
+
     }
 } else {
-    $response["success"] = -1;
+    $response["success"] = false;
     $response["message"] = "No tag";
     echo json_encode($response);
 }
