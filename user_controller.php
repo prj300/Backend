@@ -59,21 +59,31 @@ if(isset($_POST['tag']) && $_POST['tag'] != '') {
         // validate email address
         $val = $functions->validateEmail($email);
 
+        // email provided is not in a valid format
         if(!$val) {
-            $response["success"] = false;
-            $response["message"] = "This is not a valid email address";
+            $response["success"] = $val;
+            $response["message"] = "Invalid email address";
             echo json_encode($response);
         } else {
-            // check to see if a user with email address already exists
-            $user = $functions->checkUser($link, $email);
-            if($user) {
+            // check if a user with this email already exists
+            if($functions->checkUser($link, $email)) {
                 $response["success"] = false;
                 $response["message"] = "A user with this email already exists";
                 echo json_encode($response);
             } else {
-                $success = $functions->createUser($link, $email, $password);
-                // if registration successful retrieve user from database
-                $response["user"] = $functions->getUser($link, $email);
+                // create user
+                $createUser = $functions->createUser($link, $email, $password);
+                // if successful
+                if($createUser) {
+                    $response["success"] = $functions->getUser($link, $email);
+                    $response["message"] = "Registration successful";
+                    echo json_encode($response);
+
+                } else {
+                    $response["success"] = $createUser;
+                    $response["message"] = "Whoops, something went wrong!";
+                    echo json_encode($response);
+                }
             }
         }
     }
