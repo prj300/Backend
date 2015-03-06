@@ -81,12 +81,12 @@ if(isset($_POST['tag']) && $_POST['tag'] != '') {
                 $createUser = $functions->createUser($link, $email, $password);
                 // if successful
                 if($createUser) {
-                    $response["success"] = $functions->getUser($link, $email);
+                    $response["success"] = true;
+                    $response["user"] = $functions->getUser($link, $email);
                     $response["message"] = "Registration successful";
                     echo json_encode($response);
-
                 } else {
-                    $response["success"] = $createUser;
+                    $response["success"] = false;
                     $response["message"] = "Whoops, something went wrong!";
                     echo json_encode($response);
                 }

@@ -9,14 +9,14 @@
 /**
  * Database config variables
  */
-$link = mysqli_connect("localhost", "root", "", "apex.db");
+$link = mysqli_connect("localhost", "root", "i7YakRYh", "apex");
 
 
 if(!$link) {
     die("Connection failed: " . mysqli_connect_error());
 }
 
-if(!mysqli_select_db($link, 'apex.db')) {
+if(!mysqli_select_db($link, 'apex')) {
     $error = "Unable to locate events";
     echo $error;
     exit();
