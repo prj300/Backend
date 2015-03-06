@@ -52,15 +52,9 @@ class user_functions {
         $hash = password_hash($password, PASSWORD_BCRYPT);
 
         // create ane execute insert query
-        $insert = mysqli_query($link, "INSERT INTO users(email, hashed_password, date_created)
-                                   VALUES('$email', '$hash', NOW())");
+        $query = "INSERT INTO users(email, hashed_password) VALUES ('$email', '$hash')";
+        mysqli_query($link, $query);
 
-        // check if successful
-        if(mysqli_fetch_array($insert)) {
-            return true;
-        } else {
-            return false;
-        }
     }
 
     /**

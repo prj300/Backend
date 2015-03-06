@@ -29,7 +29,7 @@ if(isset($_POST['tag']) && $_POST['tag'] != '') {
         if($val) {
             $check = $functions->checkUser($link, $email);
 
-            if($check) {
+            if(!$check) {
                 $confirmPassword = $functions->confirmPassword($link, $email, $password);
                 if($confirmPassword) {
                     $response["success"] = true;
@@ -70,21 +70,15 @@ if(isset($_POST['tag']) && $_POST['tag'] != '') {
             echo json_encode($response);
         } else {
             $available = $functions->checkUser($link, $email);
-            if($available) {
-                $createUser = $functions->createUser($link, $email, $password);
-                if($createUser) {
-                    // $response["user"] = $functions->getUser($link, $email);
-                    $response["success"] = true;
-                    $response["message"] = "Registration complete";
-                    echo json_encode($response);
-                } else {
-                    $response["success"] = false;
-                    $response["message"] = "Could not complete registration";
-                    echo json_encode($response);
-                }
-            } else {
+            if(!$available) {
                 $response["success"] = false;
-                $response["message"] = "Email in use";
+                $response["message"] = "Email already in use";
+                echo json_encode($response);
+            } else {
+                $functions->createUser($link, $email, $password);
+                $response["user"] = $functions->getUser($link, $email);
+                $response["success"] = true;
+                $response["message"] = "Registration complete";
                 echo json_encode($response);
             }
         }
