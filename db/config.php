@@ -9,7 +9,7 @@
 /**
  * Database config variables
  */
-$link = mysqli_connect("localhost", "root", "i7YakRYh", "apex");
+$link = mysqli_connect("localhost", "root", "", "apex");
 
 
 if(!$link) {

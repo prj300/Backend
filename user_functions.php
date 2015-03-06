@@ -34,9 +34,9 @@ class user_functions {
     public function checkUser($link, $email)
     {
         $user = mysqli_query($link, "SELECT * FROM users WHERE email = '$email'");
-        $row = mysqli_fetch_row($user);
+        $row = mysqli_fetch_array($user);
 
-        if($row) {
+        if(!$row) {
             return true;
         } else {
             return false;
@@ -56,7 +56,7 @@ class user_functions {
                                    VALUES('$email', '$hash', NOW())");
 
         // check if successful
-        if(mysqli_fetch_row($insert)) {
+        if(mysqli_fetch_array($insert)) {
             return true;
         } else {
             return false;

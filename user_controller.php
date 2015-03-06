@@ -64,32 +64,28 @@ if(isset($_POST['tag']) && $_POST['tag'] != '') {
 
         // validate email address
         $val = $functions->validateEmail($email);
-
-        // email provided is not in a valid format
         if(!$val) {
-            $response["success"] = $val;
-            $response["message"] = "Invalid email address";
+            $response["success"] = false;
+            $response["message"] = "Invalid email";
             echo json_encode($response);
         } else {
-            // check if a user with this email already exists
-            if($functions->checkUser($link, $email)) {
-                $response["success"] = false;
-                $response["message"] = "A user with this email already exists";
-                echo json_encode($response);
-            } else {
-                // create user
+            $available = $functions->checkUser($link, $email);
+            if($available) {
                 $createUser = $functions->createUser($link, $email, $password);
-                // if successful
                 if($createUser) {
+                    // $response["user"] = $functions->getUser($link, $email);
                     $response["success"] = true;
-                    $response["user"] = $functions->getUser($link, $email);
-                    $response["message"] = "Registration successful";
+                    $response["message"] = "Registration complete";
                     echo json_encode($response);
                 } else {
                     $response["success"] = false;
-                    $response["message"] = "Whoops, something went wrong!";
+                    $response["message"] = "Could not complete registration";
                     echo json_encode($response);
                 }
+            } else {
+                $response["success"] = false;
+                $response["message"] = "Email in use";
+                echo json_encode($response);
             }
         }
         /**
