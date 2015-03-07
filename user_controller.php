@@ -29,7 +29,7 @@ if(isset($_POST['tag']) && $_POST['tag'] != '') {
         if($val) {
             $check = $functions->checkUser($link, $email);
 
-            if(!$check) {
+            if($check) {
                 $confirmPassword = $functions->confirmPassword($link, $email, $password);
                 if($confirmPassword) {
                     $response["success"] = true;
@@ -69,8 +69,8 @@ if(isset($_POST['tag']) && $_POST['tag'] != '') {
             $response["message"] = "Invalid email";
             echo json_encode($response);
         } else {
-            $available = $functions->checkUser($link, $email);
-            if(!$available) {
+            $verify = $functions->checkUser($link, $email);
+            if($verify) {
                 $response["success"] = false;
                 $response["message"] = "Email already in use";
                 echo json_encode($response);
@@ -99,29 +99,28 @@ if(isset($_POST['tag']) && $_POST['tag'] != '') {
             $response["results"] = $results;
             echo json_encode($response);
         }
-    } else if($tag == 'update') {
-        $user_id = mysqli_real_escape_string($link, $_POST['user_id']);
-        $distance = mysqli_real_escape_string($link, $_POST['distance']);
-        $time = mysqli_real_escape_string($link, $_POST['time']);
-        $max_speed = mysqli_real_escape_string($link, $_POST['max_speed']);
-        $average_speed = mysqli_real_escape_string($link, $_POST['average_speed']);
+    } else if($tag == 'reset') {
+        $email = mysqli_real_escape_string($link, $_POST['email']);
 
-        // $update = $functions->updateUser($link, $user_id, $distance, $time, $max_speed, $average_speed);
+        $val = $functions->validateEmail($email);
 
-        $response["success"] = true;
-        $response["message"] = "Update successful";
-        echo json_encode($response);
-
-        /*
-        if($update) {
-            $response["success"] = true;
-            $response["message"] = "Update successful";
+        if(!$val) {
+            $response["success"] = false;
+            $response["message"] = "Invalid email";
             echo json_encode($response);
         } else {
-            $response["success"] = false;
-            $response["message"] = "Update failed";
-            echo json_encode($response);
-        }*/
+            $user = $functions->checkUser($link, $email);
+            if(!$user) {
+                $response["success"] = false;
+                $response["message"] = "There is no user with this email";
+                echo json_encode($response);
+            } else {
+                $functions->sendPasswordReset($link, $email);
+                $response["success"] = true;
+                $response["message"] = "Password reset email sent";
+                echo json_encode($response);
+            }
+        }
     }
 
 } else {

@@ -36,7 +36,7 @@ class user_functions {
         $user = mysqli_query($link, "SELECT * FROM users WHERE email = '$email'");
         $row = mysqli_fetch_array($user);
 
-        if(!$row) {
+        if($row) {
             return true;
         } else {
             return false;
@@ -132,6 +132,27 @@ class user_functions {
             return false;
         }
         return true;
+    }
+
+    /**
+     * Send password reset link to user
+     */
+    public function sendPasswordReset($link, $email)
+    {
+        // get previously hashed password from table
+        $query = mysqli_query($link, "SELECT hashed_password FROM users WHERE email='$email'");
+        $row = mysqli_fetch_array($query);
+        $hash = $row["hashed_password"];
+
+        // build email
+        $subject = "Password Reset";
+        $headers = 'From: webmaster@example.com' . "\r\n" .
+            'Reply-To: webmaster@example.com' . "\r\n" .
+            'X-Mailer: PHP/' . phpversion();
+        $message = "<a href='http://localhost/apex/views/reset_password.php?email=$email&code=$hash>";
+
+        mail($email, $subject, $message, $headers);
+
     }
 
 }
