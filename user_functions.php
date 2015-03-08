@@ -125,13 +125,16 @@ class user_functions {
     public function updateUser($link, $user_id, $distance, $time, $max_speed, $average_speed)
     {
         $update = mysqli_query($link, "UPDATE users SET total_distance_km='$distance',
-        max_speed='$max_speed', avg_speed='$average_speed', date_updated=NOW()
-        WHERE user_id='$user_id'");
+                  total_time='$time', max_speed='$max_speed', avg_speed='$average_speed',
+                  date_updated=NOW() WHERE user_id='$user_id'");
 
-        if(!mysqli_num_rows($update) > 0) {
+        // bool confirms if update worked
+        if(!mysqli_affected_rows($link)) {
             return false;
+        } else {
+            return true;
         }
-        return true;
+
     }
 
     /**

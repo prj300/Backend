@@ -123,7 +123,7 @@ class route_functions {
     public function saveResults($link, $user_id, $route_id, $distance, $max_speed, $avg_speed, $time)
     {
         // Insert results into Results table
-        $results = mysqli_query($link, "INSERT INTO results(user_id, route_id,
+        mysqli_query($link, "INSERT INTO results(user_id, route_id,
                             distance, max_speed, average_speed, total_time, date_created)
                             VALUES('$user_id', '$route_id', '$distance',
                             '$max_speed', '$avg_speed', '$time', NOW())");
@@ -156,5 +156,46 @@ class route_functions {
             mysqli_query($link, $query);
         }
         return true;
+    }
+
+    public function insertDiscoveryPoint($link, $location_id, $name, $county)
+    {
+        $insert = mysqli_query($link, "INSERT INTO discovery_points (name, location_id, county)
+                    VALUES ('$name', '$location_id', '$county')");
+
+        if(mysqli_affected_rows($link)) {
+            return true;
+        } else {
+            return false;
+        }
+
+    }
+
+    public function getDiscoveryPoints($link, $county)
+    {
+        $response = array();
+        $query = mysqli_query($link, "SELECT * FROM discovery_points WHERE county='$county'");
+
+        if($query->num_rows > 0) {
+            while($row = $query->fetch_assoc()) {
+                $location = $this->getLatLong($link, $row["location_id"]);
+                $result = array("id"=>$row["id"], "name"=>$row["name"],
+                    "location_id"=>$row["location_id"], "county"=>$row["county"],
+                    "lat"=>$location["lat"], "long"=>$location["long"]);
+
+                array_push($response, $result);
+            }
+        }
+        return $response;
+    }
+
+    private function getLatLong($link, $id)
+    {
+        // find row where id equals to passed id
+        $query = mysqli_query($link, "SELECT latitude, longitude FROM wild_atlantic_way WHERE id='$id'");
+        $row = mysqli_fetch_array($query);
+
+        // return lat long
+        return array("lat"=>$row["latitude"], "long"=>$row["longitude"]);
     }
 }

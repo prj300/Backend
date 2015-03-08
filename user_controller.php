@@ -54,7 +54,6 @@ if(isset($_POST['tag']) && $_POST['tag'] != '') {
             echo json_encode($response);
         }
 
-
         /**
          * Call register functions
          */
@@ -120,6 +119,24 @@ if(isset($_POST['tag']) && $_POST['tag'] != '') {
                 $response["message"] = "Password reset email sent";
                 echo json_encode($response);
             }
+        }
+    } else if($tag = 'update') {
+        $user_id = mysqli_real_escape_string($link, $_POST['user_id']);
+        $distance = mysqli_real_escape_string($link, $_POST['distance']);
+        $time = mysqli_real_escape_string($link, $_POST['time']);
+        $max_speed = mysqli_real_escape_string($link, $_POST['max_speed']);
+        $avg_speed = mysqli_real_escape_string($link, $_POST['avg_speed']);
+
+        $update = $functions->updateUser($link, $user_id, $distance, $time, $max_speed, $avg_speed);
+
+        if(!$update) {
+            $response["success"] = false;
+            $response["message"] = "Update failed";
+            echo json_encode($response);
+        } else {
+            $response["success"] = true;
+            $response["message"] = "User updated";
+            echo json_encode($response);
         }
     }
 

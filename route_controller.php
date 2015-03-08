@@ -23,6 +23,7 @@ if(isset($_POST['tag']) && $_POST['tag'] != '') {
         $id = $functions->findNearestPoint($link, $latitude, $longitude);
         $route = $functions->createRoute($link, $dist, $id);
         if($route) {
+            $response["message"] = "Route found!";
             $response["success"] = true;
             $response["distance"] = $route["distance"];
             $response["route"] = $route;
@@ -51,9 +52,11 @@ if(isset($_POST['tag']) && $_POST['tag'] != '') {
 
         if($route_id != null) {
             $route = $functions->saveLatLngs($link, $route_id, $latitudes, $longitudes);
+            $result_id = $functions->saveResults($link, $user_id, $route_id, $distance, $max_speed, $avg_speed, $time);
             if($route) {
                 $response["success"] = true;
                 $response["route_id"] = $route_id;
+                $response["result_id"] = $result_id;
                 $response["message"] = "Route saved!";
                 echo json_encode($response);
             } else {
@@ -62,6 +65,18 @@ if(isset($_POST['tag']) && $_POST['tag'] != '') {
 
         }
 
+    } else if ($tag == 'discovery') {
+        $county = mysqli_real_escape_string($link, $_POST['county']);
+        $rows = $functions->getDiscoveryPoints($link, $county);
+        if($rows != null) {
+            $response["success"] = true;
+            $response["discovery_points"] = $rows;
+            echo json_encode($response);
+        } else {
+            $response["success"] = false;
+            $response["message"] = "Could not find discovery points!";
+            echo json_encode($response);
+        }
     }
 } else {
     $response["success"] = false;
