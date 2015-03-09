@@ -14,23 +14,24 @@ if(isset($_POST['tag']) && $_POST['tag'] != '') {
     $tag = $_POST['tag'];
     $functions = new route_functions();
 
-    if($tag == 'dist') {
+    if($tag == 'distance') {
         $latitude = mysqli_real_escape_string($link, $_POST['latitude']);
+        $direction = mysqli_real_escape_string($link, $_POST['direction']);
         $longitude = mysqli_real_escape_string($link, $_POST['longitude']);
         $distance = mysqli_real_escape_string($link, $_POST['distance']);
         $dist = $distance * 1000;
 
         $id = $functions->findNearestPoint($link, $latitude, $longitude);
-        $route = $functions->createRoute($link, $dist, $id);
+        $route = $functions->createRoute($link, $dist, $id, $direction);
         if($route) {
             $response["message"] = "Route found!";
             $response["success"] = true;
-            $response["distance"] = $route["distance"];
             $response["route"] = $route;
+            $response["discovery_points"] = $route["discovery_points"];
             echo json_encode($response);
         } else {
             $response["success"] = false;
-            $response["message"] = "No route";
+            $response["message"] = "Could not find route!";
             echo json_encode($response);
         }
     } else if($tag == 'new') {
@@ -65,18 +66,11 @@ if(isset($_POST['tag']) && $_POST['tag'] != '') {
 
         }
 
-    } else if ($tag == 'discovery') {
-        $county = mysqli_real_escape_string($link, $_POST['county']);
-        $rows = $functions->getDiscoveryPoints($link, $county);
-        if($rows != null) {
-            $response["success"] = true;
-            $response["discovery_points"] = $rows;
-            echo json_encode($response);
-        } else {
-            $response["success"] = false;
-            $response["message"] = "Could not find discovery points!";
-            echo json_encode($response);
-        }
+    } else if ($tag = 'discovery') {
+        $county = $_POST['county'];
+        $response["success"] = true;
+        $response["discovery_points"] = $functions->getDiscoveryPointsByCounty($link, $county);
+        echo json_encode($response);
     }
 } else {
     $response["success"] = false;

@@ -22,8 +22,6 @@ if(isset($_GET['lat']) || isset($_GET['long'])) {
     $success = $functions->insertDiscoveryPoint($link, $location_id, $name, $county);
 
     echo json_encode($success);
-
-
 }
 ?>
 

@@ -47,9 +47,10 @@ class route_functions {
     /**
      * Build a route to return to the phone based on distance
      */
-    function createRoute($link, $distance, $id)
+    function createRoute($link, $distance, $id, $direction)
     {
         $data = array();
+        $data["discovery_points"] = array();
         $data["route"] = array();
 
         $lats = array();
@@ -72,25 +73,34 @@ class route_functions {
             array_push($lats, $lat);
             array_push($longs, $lng);
 
-            /*
-            while(count($lats) > 0) {
-                $latA = (end($lats) - 1);
-                $longA = (end($longs) - 1);
-                $longB = (end($longs));
-                $latB = (end($lats));
-                $length += ($this->totalDistance($latA, $longA, $latB, $longB));
-            }*/
+            // get previous and current lat longs in array
             $latA = (end($lats) - 1);
             $longA = (end($longs) - 1);
             $longB = (end($longs));
             $latB = (end($lats));
+            // calculate distance between these two points
             $length += ($this->totalDistance($latA, $longA, $latB, $longB));
 
+            // add row information to array
             $i = array("id" => $row["id"], "lat" => $row["latitude"], "lng"=> $row["longitude"]);
+            $d = $this->getDiscoveryPointsByLocation($link, $id);
+
             array_push($data["route"], $i);
 
-            $id++;
+            if($d != null) {
+                $discovery_point = array("id"=>$d["id"], "name"=>$d["name"],
+                    "location_id"=>$d["location_id"], "county"=>$d["county"],
+                    "lat"=>$row["latitude"], "lng"=>$row["longitude"]);
+                array_push($data["discovery_points"], $discovery_point);
+            }
 
+            // iterate through the table in the direction requested by the user
+            // TODO: fix this, direction is not being accessed, always stays south
+            if($direction="south") {
+                $id++;
+            } else if($direction="north") {
+                $id--;
+            }
         }
         $data["distance"] = $length;
         return $data;
@@ -171,22 +181,37 @@ class route_functions {
 
     }
 
-    public function getDiscoveryPoints($link, $county)
+    /**
+     * Retrieve all rows from discovery points table where county = @county
+     */
+    public function getDiscoveryPointsByCounty($link, $county)
     {
         $response = array();
         $query = mysqli_query($link, "SELECT * FROM discovery_points WHERE county='$county'");
 
         if($query->num_rows > 0) {
-            while($row = $query->fetch_assoc()) {
-                $location = $this->getLatLong($link, $row["location_id"]);
-                $result = array("id"=>$row["id"], "name"=>$row["name"],
-                    "location_id"=>$row["location_id"], "county"=>$row["county"],
-                    "lat"=>$location["lat"], "long"=>$location["long"]);
-
-                array_push($response, $result);
+            while($row=mysqli_fetch_assoc($query)) {
+                $latLng = $this->getLatLong($link, $row["location_id"]);
+                $discoveryPoint = array("id" => $row["id"], "name" => $row["name"],
+                    "location_id" => $row["location_id"], "county" => $row["county"],
+                    "lat" => $latLng["lat"], "lng" => $latLng["lng"]);
+                array_push($response, $discoveryPoint);
             }
         }
         return $response;
+    }
+
+    public function getDiscoveryPointsByLocation($link, $id)
+    {
+        $query = mysqli_query($link, "SELECT * FROM discovery_points WHERE location_id='$id'");
+
+        if($query->num_rows > 0) {
+            $row = mysqli_fetch_array($query);
+            return array("id"=>$row["id"], "name"=>$row["name"],
+                "location_id"=>$row["location_id"], "county"=>$row["county"]);
+        } else {
+            return null;
+        }
     }
 
     private function getLatLong($link, $id)
@@ -196,6 +221,6 @@ class route_functions {
         $row = mysqli_fetch_array($query);
 
         // return lat long
-        return array("lat"=>$row["latitude"], "long"=>$row["longitude"]);
+        return array("lat"=>$row["latitude"], "lng"=>$row["longitude"]);
     }
 }

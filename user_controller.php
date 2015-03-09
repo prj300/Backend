@@ -95,6 +95,7 @@ if(isset($_POST['tag']) && $_POST['tag'] != '') {
             echo json_encode($response);
         } else {
             $response["success"] = true;
+            $response["message"] = "Results downloaded!";
             $response["results"] = $results;
             echo json_encode($response);
         }
