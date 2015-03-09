@@ -46,6 +46,7 @@ class route_functions {
 
     /**
      * Build a route to return to the phone based on distance
+     * and direction
      */
     function createRoute($link, $distance, $id, $direction)
     {
@@ -222,5 +223,93 @@ class route_functions {
 
         // return lat long
         return array("lat"=>$row["latitude"], "lng"=>$row["longitude"]);
+    }
+
+    /**
+     * mysqli_query($link, "SELECT id, ( '$earthRadius'
+     * acos( cos( radians('$lat') ) * cos( radians( latitude ) )
+     * cos( radians( longitude ) - radians('$long') )
+        + sin( radians('$lat') ) * sin(radians(latitude)) ) ) AS distance
+        FROM wild_atlantic_way
+        ORDER BY distance
+        LIMIT 1;");
+     */
+    public function getDiscoveryPointsByRadius($link, $radius, $lat, $long)
+    {
+        $response = array();
+        $earthRadius = 6371000; // earth radius in km
+
+        $query = mysqli_query($link, "SELECT *, ('$earthRadius'
+                              * acos(cos(radians(w.latitude)) * cos(radians('$lat'))
+                              * cos(radians(w.longitude) - radians('$long'))
+                              + sin(radians('$lat')) * sin(radians(w.latitude))
+                              as distance))
+                              FROM discovery_points as d
+                              inner join wild_atlantic_way as w
+                              on d.location_id = w.id
+                              ORDER  BY distance
+                              HAVING distance > '$radius'
+                              LIMIT 10");
+
+        if($query->num_rows > 0) {
+            while($row=mysqli_fetch_assoc($query)) {
+                $latLng = $this->getLatLong($link, $row["location_id"]);
+                $discoveryPoint = array("id" => $row["id"], "name" => $row["name"],
+                    "location_id" => $row["location_id"], "county" => $row["county"],
+                    "lat" => $latLng["lat"], "lng" => $latLng["lng"]);
+                array_push($response, $discoveryPoint);
+            }
+        }
+        return $response;
+    }
+
+    /**
+     * Returns nearest user made route
+     */
+
+    /**
+     * mysqli_query($link, "SELECT id, ( '$earthRadius'
+     * acos( cos( radians('$lat') ) * cos( radians( latitude ) )
+     * cos( radians( longitude ) - radians('$long') )
+    + sin( radians('$lat') ) * sin(radians(latitude)) ) ) AS distance
+    FROM wild_atlantic_way
+    ORDER BY distance
+    LIMIT 1;");
+     */
+    public function findUserMadeRoute($link, $grade)
+    {
+        $response = array();
+
+        $query = mysqli_query($link, "SELECT * FROM routes WHERE grade='$grade' ORDER BY distance LIMIT 1");
+
+        if($query->num_rows > 0) {
+            while($row=mysqli_fetch_assoc($query)) {
+                $latLngs = $this->getUserLatLngs($link, $row["route_id"]);
+                array_push($response["route"], $latLngs);
+                $response["route"] = array("id"=>$row["route_id"], "grade"=>$row["grade"],
+                    "terrain"=>$row["terrain"], "distance"=>$row["distance"]);
+                array_push($response, $response["route"]);
+            }
+            return $response;
+        } else {
+            return null;
+        }
+    }
+
+    private function getUserLatLngs($link, $id)
+    {
+        $response = array();
+        // find row where id equals to passed id
+        $query = mysqli_query($link, "SELECT latitude, longitude FROM lats_longs WHERE id='$id'");
+
+        if($query->num_rows>0) {
+            while($row=mysqli_fetch_assoc($query)) {
+                $latLng = array("lat" => $row["latitude"], "lng"=>$row["longitude"]);
+                array_push($response, $latLng);
+            }
+            return $response;
+        } else {
+            return null;
+        }
     }
 }

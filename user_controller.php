@@ -139,6 +139,21 @@ if(isset($_POST['tag']) && $_POST['tag'] != '') {
             $response["message"] = "User updated";
             echo json_encode($response);
         }
+    } else if($tag = 'grade') {
+        $grade = mysqli_real_escape_string($link, $_POST['grade']);
+        $id = mysqli_real_escape_string($link, $_POST['user_id']);
+        // update user grade
+        //$success = $functions->updateUserGrade($link, $id, $grade);
+
+        /*if($success) {
+            $response["success"] = true;
+            $response["message"] = "User updated!";
+            echo json_encode($response);
+        } else {
+            $response["success"] = false;
+            $response["message"] = "User could not be updated!";
+            echo json_encode($response);
+        }*/
     }
 
 } else {

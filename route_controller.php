@@ -14,7 +14,7 @@ if(isset($_POST['tag']) && $_POST['tag'] != '') {
     $tag = $_POST['tag'];
     $functions = new route_functions();
 
-    if($tag == 'distance') {
+    if($tag == 'route_distance') {
         $latitude = mysqli_real_escape_string($link, $_POST['latitude']);
         $direction = mysqli_real_escape_string($link, $_POST['direction']);
         $longitude = mysqli_real_escape_string($link, $_POST['longitude']);
@@ -66,10 +66,22 @@ if(isset($_POST['tag']) && $_POST['tag'] != '') {
 
         }
 
-    } else if ($tag = 'discovery') {
-        $county = $_POST['county'];
-        $response["success"] = true;
-        $response["discovery_points"] = $functions->getDiscoveryPointsByCounty($link, $county);
+    } else if ($tag = 'discover_county') {
+        $county = mysqli_real_escape_string($link, $_POST['county']);
+        $discovery_points = $functions->getDiscoveryPointsByCounty($link, $county);
+        if($discovery_points != null) {
+            $response["discovery_points"] = $discovery_points;
+            $response["success"] = true;
+            echo json_encode($response);
+        } else {
+            $response["success"] = false;
+            $response["message"] = "Could not get discovery points";
+            echo json_encode($response);
+        }
+
+    } else if ($tag = 'discover_distance') {
+        $response["success"] = false;
+        $response["message"] = "test";
         echo json_encode($response);
     }
 } else {

@@ -158,4 +158,15 @@ class user_functions {
 
     }
 
+    public function updateUserGrade($link, $grade)
+    {
+        $query = mysqli_query($link, "UPDATE users SET grade='$grade' WHERE user_id='$id'");
+
+        if(!mysqli_insert_id($link)) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
 }
